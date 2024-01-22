@@ -15,11 +15,11 @@ Automated script to set up a new Django project with Django Jazzmin.
    ```bash
    git clone https://github.com/MicheloMJ/start-django-auto.git
 
-1. cd start-django-auto
+2. cd start-django-auto
 
-2. chmod +x auto.sh
+3. chmod +x auto.sh
 
-3 ./auto.sh
+4 ./auto.sh
 
 
 Notes
