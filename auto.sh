@@ -4,15 +4,16 @@
 
 # ANSI color codes
 GREEN='\033[0;32m'
+BLUE='\033[0;34m'
 NC='\033[0m'  # No color
 
 # Install necessary dependencies
 sudo apt update
 sudo apt install -y python3-venv python3-pip
 
+cd "../"
 echo -e "${GREEN}Enter the project name:${NC}"
 read project_name
-cd "../"
 mkdir "$project_name"
 cd "$project_name"
 
@@ -31,7 +32,9 @@ python3 manage.py migrate
 # Update the INSTALLED_APPS in settings.py
 settings_file="$project_name/settings.py"
 echo -e "\n${GREEN}Adding 'jazzmin' to INSTALLED_APPS in settings.py...${NC}"
-sed -i "/'django.contrib.staticfiles',/ a \ \ \ \ 'jazzmin'," "$settings_file"
+
+# Insert 'jazzmin' at the beginning of INSTALLED_APPS
+sed -i "/'django.contrib.staticfiles',/ s/'django.contrib.staticfiles',/ 'jazzmin',/" "$settings_file"
 
 # Run initial migrations again after updating settings
 python3 manage.py migrate
@@ -41,33 +44,29 @@ echo -e "${GREEN}Press Enter to use the default port (8000) or enter a custom po
 read -p "Port: " port
 port=${port:-8000}
 
+# Set the superuser username to the system name
+username=$(whoami)
+
 # Prompt for creating a superuser
 echo -e "${GREEN}Do you want to create a superuser? (y/n):${NC}"
 read -p "Choice: " create_superuser
 
 if [ "$create_superuser" == "y" ]; then
-    # Set the superuser credentials
-    echo -e "${GREEN}Enter the superuser's username:${NC}"
-    read -p "Username: " username
-    echo -e "${GREEN}Enter the superuser's email address:${NC}"
-    read -p "Email: " email
-    read -s -p "${GREEN}Enter the superuser's password:${NC}" password
-    echo  # Move to a new line after reading the password
+    # Create a superuser interactively, entering the password when prompted
+    python3 manage.py createsuperuser --username="$username"
     
-    # Create a superuser
-    python3 manage.py createsuperuser --noinput --username="$username" --email="$email" --password="$password"
-    
+    # Echo the password
+    password=$(grep "password" "$project_name/manage.py" | sed -E 's/.*'password': '["'"](.*)["'"].*/\1/')
     echo -e "\nSuperuser created with the following credentials:"
     echo -e "${GREEN}Username:${NC} $username"
-    echo -e "${GREEN}Email:${NC} $email"
+    echo -e "${GREEN}Password:${NC} $password"
 fi
 
-# Move back one step out of the current folder
 cd ..
 
 # Display the URL
-echo -e "\n${GREEN}Django development server is running. Access the admin interface at:${NC}"
-echo -e "${GREEN}http://127.0.0.1:$port/admin/${NC}"
+echo -e "\n${BLUE}Django development server is running. Access the admin interface at:${NC}"
+echo -e "${BLUE}http://127.0.0.1:$port/admin/${NC}"
 
 # Run the development server
 python3 "$project_name/manage.py" runserver "$port"
