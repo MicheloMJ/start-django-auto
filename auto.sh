@@ -34,7 +34,7 @@ settings_file="$project_name/settings.py"
 echo -e "\n${GREEN}Adding 'jazzmin' to INSTALLED_APPS in settings.py...${NC}"
 
 # Insert 'jazzmin' at the beginning of INSTALLED_APPS
-sed -i "/'django.contrib.staticfiles',/ s/'django.contrib.staticfiles',/ 'jazzmin',/" "$settings_file"
+sed -i "/'django.contrib.staticfiles',/ s/'django.contrib.staticfiles',/ 'jazzmin', 'django.contrib.staticfiles',/" "$settings_file"
 
 # Run initial migrations again after updating settings
 python3 manage.py migrate
@@ -56,10 +56,9 @@ if [ "$create_superuser" == "y" ]; then
     python3 manage.py createsuperuser --username="$username"
     
     # Echo the password
-    password=$(grep "password" "$project_name/manage.py" | sed -E 's/.*'password': '["'"](.*)["'"].*/\1/')
     echo -e "\nSuperuser created with the following credentials:"
     echo -e "${GREEN}Username:${NC} $username"
-    echo -e "${GREEN}Password:${NC} $password"
+    echo -e "${GREEN}Password:${NC} 12345678"  # Hardcoded password, change as needed
 fi
 
 cd ..
@@ -70,4 +69,3 @@ echo -e "${BLUE}http://127.0.0.1:$port/admin/${NC}"
 
 # Run the development server
 python3 "$project_name/manage.py" runserver "$port"
-
